@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "author": "Rafael Corsi",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-pi-pico",
+      "id": "pico",
+      "top": -3.25,
+      "left": 3.55,
+      "attrs": { "builder": "pico-sdk" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": 121.2,
+      "left": -63.4,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 63.6,
+      "left": -63.4,
+      "attrs": { "color": "blue" }
+    }
+  ],
+  "connections": [
+    [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+    [ "pico:GP1", "$serialMonitor:TX", "", [] ],
+    [ "led2:A", "pico:GP13", "green", [ "v0" ] ],
+    [ "led2:C", "pico:GND.4", "black", [ "v0" ] ],
+    [ "pico:GND.3", "led1:C", "black", [ "h0" ] ],
+    [ "led1:A", "pico:GP8", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

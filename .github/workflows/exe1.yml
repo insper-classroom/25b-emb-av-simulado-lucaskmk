@@ -1,0 +1,41 @@
+name: exe1
+
+env:
+  EXE_DIR: exe1   # Global variable for the directory
+
+on:
+  push:
+    paths:
+      - 'exe1/main.c'
+  pull_request:
+    paths:
+      - 'exe1/main.c'
+      
+jobs:
+  wokwi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: insper-embarcados/pico-build@v1
+      - uses: insper-embarcados/actions-wokwi-test@v1
+        with:
+          token: ${{ secrets.WOKWI_CLI_TOKEN }}
+          test_name: ${{env.EXE_DIR}}
+
+  embedded_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: insper-embarcados/actions-embedded-check@v2
+        with:
+          c_file: ${{env.EXE_DIR}}/main.c
+          rtos: false
+
+  firmware_rubric_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: insper-embarcados/actions-firmware-rubric-check@v0
+        with:
+          c_file: ${{env.EXE_DIR}}/main.c
+          rubric_file: ${{env.EXE_DIR}}/rubric_firmware.yml

@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "author": "Uri Shaked",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 160.05, "left": -159.6, "attrs": {} },
+    {
+      "type": "wokwi-led-bar-graph",
+      "id": "bargraph1",
+      "top": 33.6,
+      "left": -139.2,
+      "attrs": { "color": "#9eff3c" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 265.4,
+      "left": -28.8,
+      "attrs": { "color": "green", "xray": "1", "bounce": "0" }
+    },
+    {
+      "type": "wokwi-slide-switch",
+      "id": "sw1",
+      "top": 196.4,
+      "left": 41.5,
+      "attrs": { "bounce": "0" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text1",
+      "top": 163.2,
+      "left": -28.8,
+      "attrs": { "text": "Incrementa/Decrementa" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 32.75,
+      "left": -96,
+      "attrs": { "value": "380" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 42.35,
+      "left": -96,
+      "attrs": { "value": "380" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": 51.95,
+      "left": -96,
+      "attrs": { "value": "380" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r4",
+      "top": 61.55,
+      "left": -96,
+      "attrs": { "value": "380" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r5",
+      "top": 71.15,
+      "left": -96,
+      "attrs": { "value": "380" }
+    }
+  ],
+  "connections": [
+    [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+    [ "pico:GP1", "$serialMonitor:TX", "", [] ],
+    [ "bargraph1:A1", "pico:GP2", "green", [ "h-82", "v151" ] ],
+    [ "bargraph1:A2", "pico:GP3", "green", [ "h-90", "v147" ] ],
+    [ "bargraph1:A3", "pico:GP4", "green", [ "h-99", "v149" ] ],
+    [ "bargraph1:A4", "pico:GP5", "green", [ "h-107", "v150" ] ],
+    [ "bargraph1:A5", "pico:GP6", "green", [ "h-115", "v158" ] ],
+    [ "pico:GP22", "btn1:1.l", "green", [ "h0" ] ],
+    [ "pico:GND.5", "btn1:2.r", "black", [ "h145.2", "v-38.4" ] ],
+    [ "pico:GP28", "sw1:1", "green", [ "h0" ] ],
+    [ "bargraph1:C1", "r1:1", "green", [ "v0" ] ],
+    [ "bargraph1:C5", "r5:1", "green", [ "h0" ] ],
+    [ "bargraph1:C4", "r4:1", "green", [ "h0" ] ],
+    [ "bargraph1:C3", "r3:1", "green", [ "h0" ] ],
+    [ "bargraph1:C2", "r2:1", "green", [ "h0" ] ],
+    [ "pico:GND.8", "r5:2", "black", [ "h58.8", "v-115.2" ] ],
+    [ "r4:2", "r5:2", "black", [ "v0", "h8.4", "v9.6" ] ],
+    [ "r3:2", "r4:2", "black", [ "v0", "h8.4", "v9.6" ] ],
+    [ "r2:2", "r3:2", "black", [ "v0", "h8.4", "v9.6" ] ],
+    [ "r1:2", "r2:2", "black", [ "v0", "h8.4", "v9.6" ] ],
+    [ "sw1:2", "btn1:2.r", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,30 @@
+forbiten:
+  - names:
+    - gpio_get
+    error_text: Você não deve fazer pooling no pino, deve utilizar IRS ler os pinos.
+
+shall_have:
+
+  - names:
+      - input_task
+      - xQueueInput
+    error_text: Você modificou a task / fila que não deveriam ser alteradas?
+
+  - names:
+      - xQueueReceive
+      - xQueueSend
+      - xSemaphoreGive
+      - xSemaphoreTake
+    error_text: Não le ou envia dados nas filas ou no semáforo?
+
+  - names:
+      - xSemaphoreLed2
+      - xQueueLed1
+      - xQueueLed2
+    error_text: O seu código deve necessariamente fazer uso desses recursos do rtos (com os nomes do readme)
+
+  - names:
+      - main_task
+      - led_1_task
+      - led_2_task     
+    error_text: O seu código deve necessariamente fazer uso desses recursos do rtos (com os nomes do readme)
