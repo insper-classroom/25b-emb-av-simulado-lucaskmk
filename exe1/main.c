@@ -8,8 +8,8 @@ const int SWITCH_PIN = 28;
 
 volatile int val = 0;
 volatile int btn_flag = 0;
+volatile int mode = 0; // 0 = incrementar, 1 = decrementar
 
-// Inicializa barra de LEDs
 void bar_init() {
     for (int i = 0; i < 5; i++) {
         gpio_init(LED_PINS[i]);
@@ -18,27 +18,39 @@ void bar_init() {
     }
 }
 
-// Mostra valor (0..5) na barra
 void bar_display(int val) {
     if (val < 0) val = 0;
     if (val > 5) val = 5;
 
     for (int i = 0; i < 5; i++) {
-        gpio_put(LED_PINS[i], i < val ? 1 : 0);
+        if (i < val)
+            gpio_put(LED_PINS[i], 1);
+        else
+            gpio_put(LED_PINS[i], 0);
     }
 }
 
-// ISR do botão
+// ISR do botão verde
 static void btn_isr(uint gpio, uint32_t events) {
     if (gpio == BTN_PIN && (events & GPIO_IRQ_EDGE_FALL)) {
         btn_flag = 1;
     }
 }
 
+// ISR da chave seletora
+static void sw_isr(uint gpio, uint32_t events) {
+    if (gpio == SWITCH_PIN) {
+        if (events & GPIO_IRQ_EDGE_RISE) {
+            mode = 1; // chave foi para nível alto → decrementar
+        } else if (events & GPIO_IRQ_EDGE_FALL) {
+            mode = 0; // chave foi para nível baixo → incrementar
+        }
+    }
+}
+
 int main() {
     stdio_init_all();
 
-    // Inicializa barra
     bar_init();
 
     // Configura botão
@@ -51,16 +63,18 @@ int main() {
     gpio_init(SWITCH_PIN);
     gpio_set_dir(SWITCH_PIN, GPIO_IN);
     gpio_pull_up(SWITCH_PIN);
+    gpio_set_irq_enabled(SWITCH_PIN,
+                         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL,
+                         true);
 
     while (true) {
         if (btn_flag) {
             btn_flag = 0;
 
-            // Lê posição da chave no momento do clique
-            int mode = gpio_get(SWITCH_PIN);
-
-            if (mode == 0) val++;  // chave baixa → incrementar
-            else val--;            // chave alta  → decrementar
+            if (mode == 0)
+                val++;
+            else
+                val--;
 
             bar_display(val);
         }
