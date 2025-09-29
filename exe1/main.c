@@ -6,7 +6,6 @@ const int LED_PINS[5] = {2, 3, 4, 5, 6};
 const int BTN_PIN = 22;
 const int SWITCH_PIN = 28;
 
-volatile int val = 0;
 volatile int btn_flag = 0;
 volatile int mode = 0; // 0 = incrementar, 1 = decrementar
 
@@ -66,6 +65,8 @@ int main() {
     gpio_set_irq_enabled(SWITCH_PIN,
                          GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL,
                          true);
+
+    int val = 0; // variável local ao main
 
     while (true) {
         if (btn_flag) {
