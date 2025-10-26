@@ -6,10 +6,11 @@
 const int LED_PIN_B = 9;
 const int LED_PIN_Y = 5;
 const int BTN_PIN   = 28;
-struct repeating_timer timer;
-volatile bool ledb_state = false;
-volatile bool ledy_state = false;
-volatile alarm_id_t alarm_cb_ = 0; volatile bool alarm_ = false;
+
+struct repeating_timer timer_b; volatile bool ledb_state = false;
+struct repeating_timer timer_y; volatile bool ledy_state = false;
+
+volatile alarm_id_t alarm_cb_ = 0; volatile bool is_blinking = false;
 
 bool timer_callback_b(struct repeating_timer *t) {
     ledb_state = !ledb_state;          // inverte estado
@@ -24,7 +25,7 @@ bool timer_callback_y(struct repeating_timer *t) {
 
 // callback do alarme vermelho
 static int64_t alarm_cb_b(alarm_id_t id, void *user_data) {
-    alarm_ = true;
+    is_blinking = false;
     cancel_repeating_timer(timer_callback_b);
     cancel_repeating_timer(timer_callback_y);
     return 0; // one-shot
@@ -34,11 +35,11 @@ void btn_callback(uint gpio, uint32_t events) {
     // botão vermelho
     if (gpio == BTN_PIN) {
         if (events & GPIO_IRQ_EDGE_FALL) { // pressionado
-            alarm_ = false;
-            if !(alarm_cb_){ 
+            
+            if (!is_blinking){ is_blinking = true;
             alarm_cb_ = add_alarm_in_ms(500, alarm_cb_b, NULL, false);//500ms
-            add_repeating_timer_ms(500, timer_callback_b, NULL, &timer);
-            add_repeating_timer_ms(150,timer_callback_y, NULL, &timer);}
+            add_repeating_timer_ms(500, timer_callback_b, NULL, &timer_b);
+            add_repeating_timer_ms(150,timer_callback_y, NULL, &timer_y);}
             
         }
         if (events & GPIO_IRQ_EDGE_RISE) { // solto
