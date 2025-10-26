@@ -42,9 +42,8 @@ void btn_callback(uint gpio, uint32_t events) {
             add_repeating_timer_ms(500,timer_callback_y, NULL, &timer_y);}
             
         }
-        if (events & GPIO_IRQ_EDGE_RISE) { // solto
-            //cancel_alarm(alarm_r); 
-            }
+        //if (events & GPIO_IRQ_EDGE_RISE) { // solto
+            //cancel_alarm(alarm_r); }
         }
     }
 int main() {
