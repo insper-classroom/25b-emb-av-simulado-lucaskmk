@@ -37,7 +37,7 @@ void btn_callback(uint gpio, uint32_t events) {
         if (events & GPIO_IRQ_EDGE_FALL) { // pressionado
             
             if (!is_blinking){ is_blinking = true;
-            alarm_cb_ = add_alarm_in_ms(500, alarm_cb_b, NULL, false);//500ms
+            alarm_cb_ = add_alarm_in_ms(5000, alarm_cb_b, NULL, false);//5000ms 5segundos
             add_repeating_timer_ms(500, timer_callback_b, NULL, &timer_b);
             add_repeating_timer_ms(150,timer_callback_y, NULL, &timer_y);}
             
