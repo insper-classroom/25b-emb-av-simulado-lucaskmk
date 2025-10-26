@@ -6,60 +6,46 @@
 const int LED_PIN_B = 9;
 const int LED_PIN_Y = 5;
 const int BTN_PIN   = 28;
+struct repeating_timer timer;
+volatile bool ledb_state = false;
+volatile bool ledy_state = false;
+volatile alarm_id_t alarm_cb_ = 0; volatile bool alarm_ = false;
 
-struct repeating_timer timerY;
-struct repeating_timer timerB;
-volatile alarm_id_t alarm_id = 0;
-
-volatile int ledstateB = 0;
-volatile int ledstateY = 0;
-volatile int timer_runningB = 0;
-volatile int timer_runningY = 0;
-
-bool timer_callbackB(struct repeating_timer *t) {
-    ledstateB = !ledstateB;
-    gpio_put(LED_PIN_B, ledstateB);
-    return true;
+bool timer_callback_b(struct repeating_timer *t) {
+    ledb_state = !ledb_state;          // inverte estado
+    gpio_put(LED_PIN_B, ledb_state);    // atualiza LED
+    return true; // mantém o timer rodando
+}
+bool timer_callback_y(struct repeating_timer *t) {
+    ledy_state = !ledy_state;          // inverte estado
+    gpio_put(LED_PIN_Y, ledy_state);    // atualiza LED
+    return true; // mantém o timer rodando
 }
 
-bool timer_callbackY(struct repeating_timer *t) {
-    ledstateY = !ledstateY;
-    gpio_put(LED_PIN_Y, ledstateY);
-    return true;
-}
-
-// Alarme: após 5 segundos, parar os LEDs
-static int64_t alarm_cb_r(alarm_id_t id, void *user_data) {
-    cancel_repeating_timer(&timerB);
-    cancel_repeating_timer(&timerY);
-
-    ledstateY = 0;
-    gpio_put(LED_PIN_Y, 0);
-    ledstateB = 0;
-    gpio_put(LED_PIN_B, 0);
-
-    timer_runningY = 0;
-    timer_runningB = 0;
-    alarm_id = 0; // libera para próxima vez
+// callback do alarme vermelho
+static int64_t alarm_cb_b(alarm_id_t id, void *user_data) {
+    alarm_ = true;
+    cancel_repeating_timer(timer_callback_b);
+    cancel_repeating_timer(timer_callback_y);
     return 0; // one-shot
 }
 
 void btn_callback(uint gpio, uint32_t events) {
-    if ((gpio == BTN_PIN) && (events & GPIO_IRQ_EDGE_FALL)) {
-        if (!timer_runningB) {
-            add_repeating_timer_ms(150, timer_callbackB, NULL, &timerB);
-            timer_runningB = 1;
+    // botão vermelho
+    if (gpio == BTN_PIN) {
+        if (events & GPIO_IRQ_EDGE_FALL) { // pressionado
+            alarm_ = false;
+            if !(alarm_cb_){ 
+            alarm_cb_ = add_alarm_in_ms(500, alarm_cb_b, NULL, false);//500ms
+            add_repeating_timer_ms(500, timer_callback_b, NULL, &timer);
+            add_repeating_timer_ms(150,timer_callback_y, NULL, &timer);}
+            
         }
-        if (!timer_runningY) {
-            add_repeating_timer_ms(500, timer_callbackY, NULL, &timerY);
-            timer_runningY = 1;
-        }
-        if (alarm_id == 0) {
-            alarm_id = add_alarm_in_ms(5000, alarm_cb_r, NULL, false);
+        if (events & GPIO_IRQ_EDGE_RISE) { // solto
+            //cancel_alarm(alarm_r); 
+            }
         }
     }
-}
-
 int main() {
     stdio_init_all();
 
@@ -74,9 +60,11 @@ int main() {
     gpio_init(BTN_PIN);
     gpio_set_dir(BTN_PIN, GPIO_IN);
     gpio_pull_up(BTN_PIN);
-
-    gpio_set_irq_enabled_with_callback(BTN_PIN, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
-
+    gpio_set_irq_enabled_with_callback(
+        BTN_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &btn_callback);
+        
     while (true) {
+
     }
-}
+    }
+
