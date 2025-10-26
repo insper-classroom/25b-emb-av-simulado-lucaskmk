@@ -26,8 +26,8 @@ bool timer_callback_y(struct repeating_timer *t) {
 // callback do alarme vermelho
 static int64_t alarm_cb_b(alarm_id_t id, void *user_data) {
     is_blinking = false;
-    cancel_repeating_timer(timer_b);gpio_put(LED_PIN_B, 0);
-    cancel_repeating_timer(timer_y);gpio_put(LED_PIN_Y, 0);
+    cancel_repeating_timer(&timer_b);gpio_put(LED_PIN_B, 0);
+    cancel_repeating_timer(&timer_y);gpio_put(LED_PIN_Y, 0);
     return 0; // one-shot
 }
 
