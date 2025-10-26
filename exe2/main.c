@@ -26,8 +26,8 @@ bool timer_callback_y(struct repeating_timer *t) {
 // callback do alarme vermelho
 static int64_t alarm_cb_b(alarm_id_t id, void *user_data) {
     is_blinking = false;
-    cancel_repeating_timer(timer_callback_b);gpio_put(LED_PIN_B, 0);
-    cancel_repeating_timer(timer_callback_y);gpio_put(LED_PIN_Y, 0);
+    cancel_repeating_timer(timer_b);gpio_put(LED_PIN_B, 0);
+    cancel_repeating_timer(timer_y);gpio_put(LED_PIN_Y, 0);
     return 0; // one-shot
 }
 
@@ -38,8 +38,8 @@ void btn_callback(uint gpio, uint32_t events) {
             
             if (!is_blinking){ is_blinking = true;
             alarm_cb_ = add_alarm_in_ms(5000, alarm_cb_b, NULL, false);//5000ms 5segundos
-            add_repeating_timer_ms(250, timer_callback_b, NULL, &timer_b); // T / 2? para 500ms 
-            add_repeating_timer_ms(75,timer_callback_y, NULL, &timer_y);}
+            add_repeating_timer_ms(75, timer_callback_b, NULL, &timer_b); // T / 2? para 500ms 
+            add_repeating_timer_ms(250,timer_callback_y, NULL, &timer_y);}
             
         }
         if (events & GPIO_IRQ_EDGE_RISE) { // solto
