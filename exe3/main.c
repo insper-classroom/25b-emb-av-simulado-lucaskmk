@@ -55,12 +55,12 @@ void main_task(void *p){
     input_t recived;
     while (1)
     {
-    if(xQueueReceive(xQueueInput,&recived, 0)){
+    if(xQueueReceive(xQueueInput,&recived, portMAX_DELAY)){
         int n_piscadas1 = recived.num_led1;
         xQueueSend(xQueueLed1,&n_piscadas1,0);
         int n_piscadas2 = recived.num_led2;
         xQueueSend(xQueueLed2,&n_piscadas2,0);}
-    }
+    }  
 }
 
 void led_1_task(void *p) {
@@ -70,7 +70,7 @@ void led_1_task(void *p) {
 
     int n_piscadas_recived;
     while (1) {
-        if (xQueueReceive(xQueueLed1, &n_piscadas_recived, 0)) {
+        if (xQueueReceive(xQueueLed1, &n_piscadas_recived, portMAX_DELAY)) {
             for (int i = 0; i < n_piscadas_recived; ++i) {
                 gpio_put(LED_PIN_B, 1);
                 vTaskDelay(pdMS_TO_TICKS(500));
@@ -78,7 +78,7 @@ void led_1_task(void *p) {
                 vTaskDelay(pdMS_TO_TICKS(500));
             }
             xSemaphoreGive(xSemaphoreLed2);
-        }
+        }  
     }
 }
 void led_2_task(void *p) {
@@ -88,7 +88,7 @@ void led_2_task(void *p) {
 
     int n_piscadas_recived2;
     while (1) {
-        if (xSemaphoreTake(xSemaphoreLed2,0)){
+        if (xSemaphoreTake(xSemaphoreLed2,portMAX_DELAY)){
               if (xQueueReceive(xQueueLed2, &n_piscadas_recived2, 0)) {
             for (int i = 0; i < n_piscadas_recived2; ++i) {
                 gpio_put(LED_PIN_Y, 1);
@@ -98,7 +98,6 @@ void led_2_task(void *p) {
             }
         }
         }
-      
     }
 }
 
