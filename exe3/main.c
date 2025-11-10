@@ -68,7 +68,7 @@ void led_1_task(void *p) {
     int delay = 100;
     int n_piscadas = 0;
     while (true) {
-        if (xQueueReceive(xQueueLed1, &n_piscadas,500)) {
+        if (xQueueReceive(xQueueLed1, &n_piscadas,portMAX_DELAY)) {
         for (int i=0; i <  n_piscadas; i++){
             gpio_put(LED_PIN_B, 1);
             vTaskDelay(pdMS_TO_TICKS(delay));
@@ -84,8 +84,9 @@ void led_2_task(void *p) {
     int delay = 100;
     int n_piscadas = 0;
     while (true) {
-        if (xQueueReceive(xQueueLed2, &n_piscadas, 500)) {
-            if (xSemaphoreTake(xSemaphoreLed2, pdMS_TO_TICKS(500)) == pdTRUE) {
+        if (xSemaphoreTake(xSemaphoreLed2, portMAX_DELAY) == pdTRUE) {
+            if (xQueueReceive(xQueueLed2, &n_piscadas, portMAX_DELAY)) {
+            
         for (int i=0; i <  n_piscadas; i++){
             gpio_put(LED_PIN_Y, 1);
             vTaskDelay(pdMS_TO_TICKS(delay));
@@ -114,10 +115,7 @@ int main() {
     /**
      * Seu código vem aqui!
      */
-            xQueueLed1 = xQueueCreate(32, sizeof(int));
-    xQueueLed2 = xQueueCreate(32, sizeof(int));
-    xSemaphoreLed2 = xSemaphoreCreateBinary();;
-xTaskCreate(main_task, "Main_Router", 256, NULL, 1, NULL); 
+    xTaskCreate(main_task, "Main_Router", 256, NULL, 1, NULL); 
     xTaskCreate(led_1_task, "LED_Blue", 256, NULL, 1, NULL);
     xTaskCreate(led_2_task, "LED_Yellow", 256, NULL, 1, NULL); 
     vTaskStartScheduler();
