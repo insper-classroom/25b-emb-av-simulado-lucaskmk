@@ -47,56 +47,51 @@ void input_task(void* p) {
 /**
  * Seu código vem aqui!
  */
-QueueHandle_t xQueueLed1;    
-QueueHandle_t xQueueLed2;        // Fila de comunicação
-SemaphoreHandle_t xSemaphoreLed2; 
-
-void main_task(void *p){
-    input_t recived;
+ QueueHandle_t xQueueLed1;
+ QueueHandle_t xQueueLed2;
+SemaphoreHandle_t xSemaphoreLed2;
+void main_task(void *p) {
+    input_t num_led;
     while (1)
     {
-    if(xQueueReceive(xQueueInput,&recived, portMAX_DELAY)){
-        int n_piscadas1 = recived.num_led1;
-        xQueueSend(xQueueLed1,&n_piscadas1,0);
-        int n_piscadas2 = recived.num_led2;
-        xQueueSend(xQueueLed2,&n_piscadas2,0);}
-    }  
-}
-
+    if (xQueueReceive(xQueueInput, &num_led,portMAX_DELAY)) {
+        xQueueSend(xQueueLed1, &num_led.num_led1, 0);
+        xQueueSend(xQueueLed2, &num_led.num_led2, 0);
+    }
+    
+    
+   
+}}
 void led_1_task(void *p) {
     gpio_init(LED_PIN_B);
     gpio_set_dir(LED_PIN_B, GPIO_OUT);
-    gpio_put(LED_PIN_B, 0);
-
-    int n_piscadas_recived;
-    while (1) {
-        if (xQueueReceive(xQueueLed1, &n_piscadas_recived, portMAX_DELAY)) {
-            for (int i = 0; i < n_piscadas_recived; ++i) {
-                gpio_put(LED_PIN_B, 1);
-                vTaskDelay(pdMS_TO_TICKS(500));
-                gpio_put(LED_PIN_B, 0);
-                vTaskDelay(pdMS_TO_TICKS(500));
-            }
-            xSemaphoreGive(xSemaphoreLed2);
-        }  
+    int delay = 100;
+    int n_piscadas = 0;
+    while (true) {
+        if (xQueueReceive(xQueueLed1, &n_piscadas,500)) {
+        for (int i=0; i <  n_piscadas; i++){
+            gpio_put(LED_PIN_B, 1);
+            vTaskDelay(pdMS_TO_TICKS(delay));
+            gpio_put(LED_PIN_B, 0);
+            vTaskDelay(pdMS_TO_TICKS(delay));
+        }xSemaphoreGive(xSemaphoreLed2);
+        }
     }
 }
 void led_2_task(void *p) {
     gpio_init(LED_PIN_Y);
     gpio_set_dir(LED_PIN_Y, GPIO_OUT);
-    gpio_put(LED_PIN_Y, 0);
-
-    int n_piscadas_recived2;
-    while (1) {
-        if (xSemaphoreTake(xSemaphoreLed2,portMAX_DELAY)){
-              if (xQueueReceive(xQueueLed2, &n_piscadas_recived2, 0)) {
-            for (int i = 0; i < n_piscadas_recived2; ++i) {
-                gpio_put(LED_PIN_Y, 1);
-                vTaskDelay(pdMS_TO_TICKS(500));
-                gpio_put(LED_PIN_Y, 0);
-                vTaskDelay(pdMS_TO_TICKS(500));
-            }
-        }
+    int delay = 100;
+    int n_piscadas = 0;
+    while (true) {
+        if (xQueueReceive(xQueueLed2, &n_piscadas, 500)) {
+            if (xSemaphoreTake(xSemaphoreLed2, pdMS_TO_TICKS(500)) == pdTRUE) {
+        for (int i=0; i <  n_piscadas; i++){
+            gpio_put(LED_PIN_Y, 1);
+            vTaskDelay(pdMS_TO_TICKS(delay));
+            gpio_put(LED_PIN_Y, 0);
+            vTaskDelay(pdMS_TO_TICKS(delay));
+        }}
         }
     }
 }
@@ -107,22 +102,26 @@ int main() {
     /**
      * manter essas duas linhas!
      */
+
+
+
+    xQueueLed1 = xQueueCreate(32, sizeof(int));
+    xQueueLed2 = xQueueCreate(32, sizeof(int));
+    xSemaphoreLed2 = xSemaphoreCreateBinary();;
     xQueueInput = xQueueCreate(32, sizeof(input_t));
     xTaskCreate(input_task, "Input", 256, NULL, 1, NULL);
 
     /**
      * Seu código vem aqui!
      */
-    xQueueLed1 = xQueueCreate(8, sizeof(int));
-    xQueueLed2 = xQueueCreate(8, sizeof(int));
-
-    xSemaphoreLed2 = xSemaphoreCreateBinary();
-    xTaskCreate(main_task, "Main", 512, NULL, 2, NULL);
-    xTaskCreate(led_1_task, "Led1", 256, NULL, 2, NULL);
-    xTaskCreate(led_2_task, "Led2", 256, NULL, 1, NULL);
-
+            xQueueLed1 = xQueueCreate(32, sizeof(int));
+    xQueueLed2 = xQueueCreate(32, sizeof(int));
+    xSemaphoreLed2 = xSemaphoreCreateBinary();;
+xTaskCreate(main_task, "Main_Router", 256, NULL, 1, NULL); 
+    xTaskCreate(led_1_task, "LED_Blue", 256, NULL, 1, NULL);
+    xTaskCreate(led_2_task, "LED_Yellow", 256, NULL, 1, NULL); 
     vTaskStartScheduler();
-
+ 
     while (1) {}
 
     return 0;
